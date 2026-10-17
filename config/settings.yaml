@@ -1,0 +1,32 @@
+# apache_age_101 configuration.
+# Local-only PostgreSQL + Apache AGE. No cloud, no account, no API key.
+# Every value here can be overridden; DB fields also read AGE_DB_* env vars.
+
+db:
+  host: localhost
+  port: 5432
+  dbname: age101
+  user: postgres
+  password: postgres
+  connect_timeout: 3
+
+graphs:
+  social: social_txn
+  copurchase: copurchase
+  dependency: dependency
+  knowledge: knowledge
+
+dataset:
+  seed: 7
+  # Kept to thousands of nodes/edges so AGE, the SQL CTE baseline,
+  # and exact NetworkX algorithms all run in seconds on 2 CPU / 8 GB.
+  n_accounts: 400
+  n_users: 200
+  n_items: 120
+  n_components: 150
+  n_communities: 6
+  n_rings: 6
+  ring_min_len: 3
+  ring_max_len: 5
+  avg_knows_degree: 4
+  avg_pays_degree: 3

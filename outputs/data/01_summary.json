@@ -1,0 +1,21 @@
+{
+  "age_account_count": 400,
+  "edge_labels": {
+    "KNOWS": 3018,
+    "PAYS": 558
+  },
+  "edges": 3576,
+  "graph": "social_txn",
+  "node_labels": {
+    "Account": 400
+  },
+  "nodes": 400,
+  "planted_rings": 6,
+  "sample_edge_properties": {
+    "amount": 1698
+  },
+  "sample_node_properties": {
+    "name": "acct_0",
+    "risk": 0.324
+  }
+}

@@ -1,0 +1,48 @@
+{
+  "all_planted_found": true,
+  "found": {
+    "AGE": 6,
+    "NetworkX": 6,
+    "SQL": 6
+  },
+  "pattern": "MATCH p = (a:Account)-[:PAYS*3..5]->(a) RETURN nodes(p) AS ring",
+  "planted_count": 6,
+  "rings": [
+    [
+      6,
+      131,
+      307,
+      126
+    ],
+    [
+      20,
+      258,
+      75,
+      341
+    ],
+    [
+      22,
+      63,
+      264,
+      130
+    ],
+    [
+      97,
+      274,
+      190,
+      195,
+      391
+    ],
+    [
+      124,
+      155,
+      366
+    ],
+    [
+      235,
+      368,
+      298,
+      387
+    ]
+  ]
+}

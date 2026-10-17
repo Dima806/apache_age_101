@@ -1,0 +1,5 @@
+{
+  "cypher": "MATCH (a:Account {node_id: 0})-[:KNOWS*1..6]->(b) RETURN DISTINCT b.node_id",
+  "networkx": "result, stack = set(), [(start, 0, frozenset({start}))]\nwhile stack:\n    node, depth, seen = stack.pop()\n    if min_hops <= depth <= max_hops: result.add(node)\n    if depth >= max_hops: continue\n    for nbr in G.successors(node):\n        if nbr not in seen: stack.append((nbr, depth + 1, seen | {nbr}))",
+  "sql": "WITH RECURSIVE walk(node, depth, path) AS (\n    SELECT :start, 0, ',' || :start || ','\n    UNION ALL\n    SELECT e.dst, w.depth + 1, w.path || e.dst || ','\n    FROM walk w\n    JOIN edges e ON e.src = w.node AND e.label = :rel\n    WHERE w.depth < :max_hops\n      AND instr(w.path, ',' || e.dst || ',') = 0\n)\nSELECT DISTINCT node FROM walk\nWHERE depth BETWEEN :min_hops AND :max_hops;"
+}
