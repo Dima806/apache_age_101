@@ -1,0 +1,27 @@
+[
+  {
+    "avoid_when": "multi-hop / variable-length / cycle detection",
+    "tool": "plain SQL",
+    "use_when": "shallow 1-2 hop relationships you already query relationally"
+  },
+  {
+    "avoid_when": "you need built-in graph algorithms (PageRank, communities, centrality)",
+    "tool": "Apache AGE",
+    "use_when": "multi-hop traversal, path patterns, cycle detection on data already in Postgres"
+  },
+  {
+    "avoid_when": "the graph is huge, or it should live next to your tables",
+    "tool": "NetworkX / igraph",
+    "use_when": "graph fits in memory and you need graph algorithms or one-off analysis"
+  },
+  {
+    "avoid_when": "a modest graph that already lives in Postgres",
+    "tool": "Neo4j + GDS",
+    "use_when": "very large graphs, heavy graph OLTP, mature built-in algorithms library"
+  },
+  {
+    "avoid_when": "rarely \u2014 this is the default sweet spot for Postgres shops",
+    "tool": "AGE + Python (combined)",
+    "use_when": "keep the graph in AGE next to your tables; pull subgraphs into Python for heavy algorithms"
+  }
+]

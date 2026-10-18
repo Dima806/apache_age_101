@@ -1,0 +1,30 @@
+{
+  "cypher": "MATCH p = (a:Account {node_id: 0})-[:KNOWS*1..4]->(b:Account {node_id: 20}) RETURN nodes(p) AS path ORDER BY length(p) LIMIT 1",
+  "length_hops": 4,
+  "lengths_agree": true,
+  "paths": {
+    "AGE": [
+      0,
+      180,
+      206,
+      326,
+      20
+    ],
+    "NetworkX": [
+      0,
+      180,
+      206,
+      326,
+      20
+    ],
+    "SQL": [
+      0,
+      192,
+      8,
+      38,
+      20
+    ]
+  },
+  "source": 0,
+  "target": 20
+}

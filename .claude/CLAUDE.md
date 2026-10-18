@@ -54,22 +54,32 @@ Never oversell AGE as an analytics engine. Never claim it needs no server. Both 
 - Graphs are kept to **thousands of nodes/edges** so AGE queries, the SQL baselines, and *exact*
   NetworkX algorithms all finish in seconds. Each notebook runs **< 6 min** (after the one-time AGE
   build).
-- Key deps: `psycopg[binary]`, `networkx`, `pandas`, `numpy`, `matplotlib`, `plotly`, `pyvis`,
-  `streamlit`, `pydantic`, `pydantic-settings`, `pyyaml`. Optional `[algos]`: `python-igraph`.
+- Key deps: `psycopg[binary]`, `networkx`, `scipy` (NetworkX's `pagerank` needs it — notebook 05),
+  `pandas`, `numpy`, `matplotlib`, `plotly`, `pyvis`, `streamlit`, `pydantic`, `pydantic-settings`,
+  `pyyaml`. Optional `[algos]`: `python-igraph`.
   Dev: `pytest`, `ruff`, `ty`, `jupyter`, `ipykernel`, `nbconvert`, `nbclient`.
+- Pinned local env: Python **3.12** (`.python-version`); `[tool.uv] package = false` (code is the
+  top-level `src` package, run from the repo root); pytest `pythonpath = ["."]`.
 
 ## Setup sequence
 
 ```
 make setup      # Python env (uv sync --all-extras + register kernel)
 make age        # ONE-TIME: apt Postgres + build AGE from source + CREATE EXTENSION (local only)
-make db-start   # start the local Postgres service
+make db-start   # start the local Postgres service (ALSO after every Codespace restart)
 make load       # generate planted graphs + load into AGE and relational tables
 make test       # assert everything agrees with planted truth
+make notebooks  # execute all six notebooks (writes PNG/JSON to outputs/)
+make run        # Streamlit app
 ```
 
 `make age` is a one-time build (a few minutes) deliberately split out so the Python env and
-baselines are usable immediately.
+baselines are usable immediately. **Postgres stops on a Codespace restart** — the on-disk data
+(the `age101` DB, the extension, the loaded graphs) persists, so just re-run `make db-start`.
+`make age` uses **`sudo su - postgres`** (never `sudo -u postgres`) for the one-time bootstrap, so
+there is no interactive password prompt (Codespaces sudo is passwordless only when the target is
+root); it sets the `postgres` password to match `config/settings.yaml` so the project connects over
+TCP.
 
 ## Repository structure
 
@@ -84,11 +94,12 @@ src/queries/     traversal (n-hop, variable-length) · paths (shortest path) · 
 src/datasets/    graphs.py — synthetic graphs with PLANTED rings/paths/communities (known truth)
 src/evaluation/  correctness (vs truth + 3-way agreement) · readability (LOC/complexity)
                  runtime (vs size & hop depth) · comparison (arena harness)
-src/visualisation.py   graph drawing (networkx + matplotlib / pyvis)
+src/visualisation.py   graph drawing (networkx + matplotlib, headless Agg)
+src/outputs.py         notebook helpers: figure_path(name) → outputs/figures, save_json(name, data) → outputs/data
 app/streamlit_app.py   Cypher console · n-hop explorer · fraud-ring finder · three-way comparison
-notebooks/01..06       the narrative above
+notebooks/01..06       the narrative above (built via throwaway nbformat scripts; the .ipynb are the deliverable)
 tests/           test_cypher · test_traversal · test_rings · test_to_networkx
-outputs/figures/ generated figures for the Medium article (7–8 figures)
+outputs/figures/ *.png  — every notebook visual        outputs/data/ *.json — every textual/numerical result
 ```
 
 ## The core pattern: three implementations per question
@@ -128,7 +139,9 @@ Because rings, shortest paths, and communities are *planted*, every answer is ch
 - **AGE ≠ analytics library.** No built-in PageRank/community/centrality. Pattern: Cypher extracts
   the subgraph → NetworkX/igraph computes → write scores back as node properties.
 - **pgvector can live in the same Postgres** → graph + vector retrieval in one DB. Cross-links to
-  `graphrag_vs_vectorrag` and `vector_search_101`.
+  `graphrag_vs_vectorrag`, `embeddings_101`, and `retrieval_arena` (the vector side); `gnn_101` and
+  `geo_distance_arena` (graphs / real road-network shortest paths); `feature_engineering_arena`
+  (graph features for ML). See README "Related projects" for the live links.
 - **Decision framework:** plain SQL for shallow 1–2 hop you already query relationally · AGE for
   multi-hop / path patterns / cycle detection next to data already in Postgres · NetworkX/igraph for
   in-memory graph algorithms · a dedicated graph DB (Neo4j + GDS) for very large graphs, heavy graph
@@ -145,6 +158,22 @@ Because rings, shortest paths, and communities are *planted*, every answer is ch
   whole project uses; route all Cypher through it and parse `agtype` into plain Python / pandas there.
 - Keep the graph and the relational baseline as **the same records in the same database, queried two
   ways** — that equivalence is a teaching point, so load both from one source in `load.py`.
+- **Bound every variable-length match.** AGE has no early-stopping shortest-path operator, so an
+  unbounded `-[:REL*]->` enumerates *all* paths and hangs on a dense graph. `shortest_path_*` and the
+  SQL CTE take a `max_hops` cap; `ring_cypher` uses `*min..max`. This is a real limit, and a lesson.
+- **No property access inside a Cypher list comprehension.** `[n IN nodes(p) | n.node_id]` fails with
+  "could not find properties for n"; `RETURN nodes(p)` and pull `node_id` out in Python instead.
+- **Scope the SQL cycle search.** The recursive-CTE ring finder enumerates paths from every node and
+  is ruinous on a large graph; notebook 03 first restricts it to the **strongly-connected core**
+  (`nx.strongly_connected_components`, `O(V+E)`) since the acyclic bulk holds no cycles.
+- `age_available()` returns true only when the extension is **created in the target DB** (checks
+  `pg_extension`), not merely that the library loads — so tests/notebooks skip AGE cleanly on a
+  half-set-up database and the SQL/NetworkX baselines carry the lesson.
+- **agtype parsing** strips the `::vertex`/`::edge`/`::path` tags *anywhere* (including inside a list
+  such as `nodes(p)`) before `json.loads`; see `parse_agtype`.
+- Variable-length `*1..d` follows openCypher walk semantics (a node may repeat, a relationship may
+  not), so with reciprocal edges AGE also returns the start via a there-and-back walk; the simple-path
+  baselines do not. Compare reachability sets **without the start** (notebooks 02/04).
 
 ## Conventions
 

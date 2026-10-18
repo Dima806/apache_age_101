@@ -1,0 +1,20 @@
+[
+  {
+    "approach": "AGE (Cypher)",
+    "correct": true,
+    "lines_of_code": 1,
+    "seconds": 0.295904
+  },
+  {
+    "approach": "SQL (recursive CTE)",
+    "correct": true,
+    "lines_of_code": 11,
+    "seconds": 0.01107
+  },
+  {
+    "approach": "NetworkX",
+    "correct": true,
+    "lines_of_code": 7,
+    "seconds": 0.005621
+  }
+]

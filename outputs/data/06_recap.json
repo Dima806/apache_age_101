@@ -1,0 +1,14 @@
+{
+  "fraud_rings_found": 6,
+  "helpers": [
+    "src.age.connect.get_connection  (LOAD age + search_path)",
+    "src.age.cypher.run_cypher       (the one Cypher adapter)",
+    "src.queries.{traversal,paths,rings,patterns}  (three implementations each)",
+    "src.age.to_networkx.subgraph_to_networkx  (AGE -> NetworkX bridge)",
+    "src.evaluation.comparison.compare  (the arena harness)"
+  ],
+  "one_line_cypher": "MATCH (a:Account {node_id: 0})-[:KNOWS*1..3]->(b) RETURN DISTINCT b.node_id",
+  "planted_rings": 6,
+  "reachable_within_3_hops_of_account_0": 183,
+  "source": "AGE (Cypher, in Postgres)"
+}

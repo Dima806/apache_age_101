@@ -1,0 +1,11 @@
+{
+  "all_approaches_agree": true,
+  "all_planted_rings_found": true,
+  "reachability_agree_by_depth": {
+    "1": true,
+    "2": true,
+    "3": true,
+    "4": true,
+    "5": true
+  }
+}

@@ -1,0 +1,50 @@
+{
+  "cols": [
+    "shallow 1-2 hop",
+    "multi-hop traversal",
+    "cycle / ring detection",
+    "in-memory algorithms",
+    "very large / OLTP",
+    "next to Postgres data"
+  ],
+  "rows": [
+    "plain SQL",
+    "Apache AGE",
+    "NetworkX / igraph",
+    "Neo4j + GDS"
+  ],
+  "scores": [
+    [
+      2,
+      0,
+      0,
+      0,
+      1,
+      2
+    ],
+    [
+      2,
+      2,
+      2,
+      0,
+      1,
+      2
+    ],
+    [
+      1,
+      2,
+      2,
+      2,
+      0,
+      0
+    ],
+    [
+      1,
+      2,
+      2,
+      2,
+      2,
+      0
+    ]
+  ]
+}
